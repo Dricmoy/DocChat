@@ -1,6 +1,6 @@
 // HomeScreen.tsx
 import React from 'react';
-import { View, Text, Button, Image, StyleSheet } from 'react-native';
+import { TouchableOpacity, View, Text, Button, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
@@ -19,7 +19,7 @@ const HomeScreen = () => {
                 title="Chat with Doctor"
                 onPress={() => navigation.navigate('chat')}
                 color="#057AFF" // Adjust button color as needed
-            />
+            ></Button>
             <Text style={styles.infoText}>Need help? Call 1-800-CHATAPP</Text>
         </View>
     );
