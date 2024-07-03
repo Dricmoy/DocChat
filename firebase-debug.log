@@ -1,21 +1,10 @@
-[debug] [2024-07-03T12:58:21.222Z] ----------------------------------------------------------------------
-[debug] [2024-07-03T12:58:21.224Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\dricb\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
-[debug] [2024-07-03T12:58:21.224Z] CLI Version:   13.13.0
-[debug] [2024-07-03T12:58:21.224Z] Platform:      win32
-[debug] [2024-07-03T12:58:21.224Z] Node Version:  v20.11.1
-[debug] [2024-07-03T12:58:21.225Z] Time:          Wed Jul 03 2024 06:58:21 GMT-0600 (Mountain Daylight Saving Time)
-[debug] [2024-07-03T12:58:21.225Z] ----------------------------------------------------------------------
+[debug] [2024-07-03T14:12:17.849Z] ----------------------------------------------------------------------
+[debug] [2024-07-03T14:12:17.851Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\dricb\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2024-07-03T14:12:17.851Z] CLI Version:   13.13.0
+[debug] [2024-07-03T14:12:17.851Z] Platform:      win32
+[debug] [2024-07-03T14:12:17.851Z] Node Version:  v20.11.1
+[debug] [2024-07-03T14:12:17.851Z] Time:          Wed Jul 03 2024 08:12:17 GMT-0600 (Mountain Daylight Saving Time)
+[debug] [2024-07-03T14:12:17.851Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2024-07-03T12:58:21.229Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2024-07-03T12:58:21.229Z] > authorizing via signed-in user (dricbhattacharjee@gmail.com)
-[info] 
-     ######## #### ########  ######## ########     ###     ######  ########
-     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
-     ######    ##  ########  ######   ########  #########  ######  ######
-     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
-     ##       #### ##     ## ######## ########  ##     ##  ######  ########
-
-You're about to initialize a Firebase project in this directory:
-
-  C:\Users\dricb\Desktop\DoctorChatAPP\chatapp
-
+[debug] [2024-07-03T14:12:17.930Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-07-03T14:12:17.930Z] > authorizing via signed-in user (dricbhattacharjee@gmail.com)

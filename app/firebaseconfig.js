@@ -16,6 +16,9 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firestore
 const db = getFirestore(app);
 
+// Set development mode
+const __DEV__ = process.env.NODE_ENV !== 'production';
+
 // Connect to Firestore emulator if in development mode
 if (__DEV__) {
   console.log('Running in development mode');
