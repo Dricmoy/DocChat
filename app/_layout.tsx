@@ -20,7 +20,7 @@ export default function TabLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerTitle: (props) => <CustomHeader {...props} title="DocuChat" />,
+          headerTitle: (props) => <CustomHeader {...props} title="Undecided" />,
         }}
       />
       <Stack.Screen

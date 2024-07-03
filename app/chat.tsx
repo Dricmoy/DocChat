@@ -1,13 +1,38 @@
-import React from "react";
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Pressable } from "react-native";
+import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '../app/firebaseconfig';
+
+interface Message {
+  id: string;
+  text: string;
+  createdAt: number;
+}
 
 export default function Chat() {
-  const [messages, setMessages] = React.useState<string[]>([]);
+  const [messages, setMessages] = React.useState<Message[]>([]);
   const [inputMessage, setInputMessage] = React.useState<string>("");
 
-  const sendMessage = () => {
+  useEffect(() => {
+    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const messagesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        text: doc.data().text,
+        createdAt: doc.data().createdAt
+      })) as Message[];
+      setMessages(messagesData);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const sendMessage = async () => {
     if (inputMessage.trim() !== "") {
-      setMessages([...messages, inputMessage.trim()]);
+      await addDoc(collection(db, "messages"), {
+        text: inputMessage.trim(),
+        createdAt: Date.now(),
+      });
       setInputMessage("");
     }
   };
@@ -16,10 +41,10 @@ export default function Chat() {
     <View style={styles.container}>
       <FlatList
         data={messages}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.messageContainer}>
-            <Text style={styles.messageText}>{item}</Text>
+            <Text style={styles.messageText}>{item.text}</Text>
           </View>
         )}
         contentContainerStyle={styles.messagesList}
@@ -33,9 +58,9 @@ export default function Chat() {
           onChangeText={(text) => setInputMessage(text)}
           onSubmitEditing={sendMessage}
         />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+        <Pressable style={styles.sendButton} onPress={sendMessage}>
           <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );

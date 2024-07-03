@@ -1,6 +1,6 @@
 // HomeScreen.tsx
 import React from 'react';
-import { TouchableOpacity, View, Text, Button, Image, StyleSheet } from 'react-native';
+import { View, Text, Button, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
@@ -13,7 +13,7 @@ const HomeScreen = () => {
                 style={styles.logo}
                 resizeMode="contain"
             />
-            <Text style={styles.title}>Welcome to ChatApp</Text>
+            <Text style={styles.title}>Welcome to "Undecided"</Text>
             <Text style={styles.subtitle}>Your platform for easy medical consultations.</Text>
             <Button
                 title="Chat with Doctor"
