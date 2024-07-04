@@ -1,25 +1,38 @@
 import React, { useEffect } from "react";
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Pressable } from "react-native";
+import { StyleSheet, Text, View, TextInput, Pressable, FlatList } from "react-native";
 import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { db } from '../app/firebaseconfig';
+import { db } from './firebaseconfig';
+import uuid from 'react-native-uuid';
 
 interface Message {
   id: string;
   text: string;
   createdAt: number;
+  senderName: string; // Changed to senderName for consistency
+  senderId: string;
 }
 
 export default function Chat() {
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [inputMessage, setInputMessage] = React.useState<string>("");
+  const DeviceID = uuid.v4(); // I want it to be guest by default
+  const [userName, setUserName] = React.useState<string>("guest"); //this is the patient's Name
+  const hospitalId = "your_hospital_id_here"; // Replace with actual hospital ID
 
   useEffect(() => {
+    // Set userName to "guest" by default or use authenticated user's name if available
+    // Replace the logic here if you have authentication to get the actual userName
+    setUserName("guest");
+
+    // Query to listen for new messages ordered by creation time
     const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const messagesData = snapshot.docs.map(doc => ({
         id: doc.id,
         text: doc.data().text,
-        createdAt: doc.data().createdAt
+        createdAt: doc.data().createdAt,
+        senderName: doc.data().senderName,
+        senderId: doc.data().senderId,
       })) as Message[];
       setMessages(messagesData);
     });
@@ -29,34 +42,41 @@ export default function Chat() {
 
   const sendMessage = async () => {
     if (inputMessage.trim() !== "") {
+      // Add new message to Firestore
       await addDoc(collection(db, "messages"), {
         text: inputMessage.trim(),
         createdAt: Date.now(),
+        senderName: userName, // Use userName for senderName
+        senderId: DeviceID, // Use DeviceID for senderId
+        receiverId: hospitalId, // Fixed receiver ID
       });
-      setInputMessage("");
+      setInputMessage(""); // Clear input field after sending message
     }
   };
 
   return (
     <View style={styles.container}>
+      {/* Render the list of messages */}
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.messageContainer}>
             <Text style={styles.messageText}>{item.text}</Text>
+            <Text style={styles.senderText}>Sent by: {item.senderName}</Text>
           </View>
         )}
         contentContainerStyle={styles.messagesList}
-        inverted
+        inverted // Start from bottom
       />
+      {/* Input area for typing messages */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder="Type your message..."
           value={inputMessage}
           onChangeText={(text) => setInputMessage(text)}
-          onSubmitEditing={sendMessage}
+          onSubmitEditing={sendMessage} // Send message on submit
         />
         <Pressable style={styles.sendButton} onPress={sendMessage}>
           <Text style={styles.sendButtonText}>Send</Text>
@@ -66,6 +86,7 @@ export default function Chat() {
   );
 }
 
+// Styles for Chat component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -74,18 +95,23 @@ const styles = StyleSheet.create({
   },
   messagesList: {
     flexGrow: 1,
-    justifyContent: "flex-end",
+    justifyContent: "flex-end", // Messages start from bottom
   },
   messageContainer: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#96b87f", // Soft green background for messages
     padding: 10,
     borderRadius: 8,
     marginBottom: 8,
-    maxWidth: "70%",
-    alignSelf: "flex-start",
+    maxWidth: "70%", // Max width for message container
+    alignSelf: "flex-end", // Align messages to right
+  },
+  senderText: {
+    fontSize: 12,
+    color: "#666", // Dark gray color for sender text
   },
   messageText: {
     fontSize: 16,
+    color: "#333", // Dark color for message text
   },
   inputContainer: {
     flexDirection: "row",
@@ -103,13 +129,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   sendButton: {
-    backgroundColor: "#007BFF",
+    backgroundColor: "#96b87f", // Soft green color for send button
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
   },
   sendButtonText: {
-    color: "#fff",
+    color: "#fff", // White color for send button text
     fontSize: 16,
     fontWeight: "bold",
   },

@@ -13,7 +13,7 @@ const HomeScreen = () => {
                 style={styles.logo}
                 resizeMode="contain"
             />
-            <Text style={styles.title}>Welcome to "Undecided"</Text>
+            <Text style={styles.title}>Welcome to DocChat</Text>
             <Text style={styles.subtitle}>Your platform for easy medical consultations.</Text>
             <Button
                 title="Chat with Doctor"
