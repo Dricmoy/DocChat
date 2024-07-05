@@ -1,27 +1,45 @@
 import React, { useEffect } from "react";
-import { StyleSheet, Text, View, TextInput, Pressable, FlatList } from "react-native";
+import { Alert, StyleSheet, Text, View, TextInput, Pressable, FlatList } from "react-native";
 import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from './firebaseconfig';
 import uuid from 'react-native-uuid';
+import * as SecureStore from 'expo-secure-store';
 
 interface Message {
   id: string;
   text: string;
   createdAt: number;
-  senderName: string; // Changed to senderName for consistency
+  senderName: string;
   senderId: string;
+}
+
+async function save(key: string, value: string) {
+  await SecureStore.setItemAsync(key, value);
+}
+
+async function getValueFor(key: string) {
+  let result = await SecureStore.getItemAsync(key);
+  if (result) {
+    alert("🔐 Here's your value 🔐 \n" + result);
+  } else {
+    alert('No values stored under that key.');
+  }
 }
 
 export default function Chat() {
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [inputMessage, setInputMessage] = React.useState<string>("");
-  const DeviceID = uuid.v4(); // I want it to be guest by default
-  const [userName, setUserName] = React.useState<string>("guest"); //this is the patient's Name
+  const [userName, setUserName] = React.useState<string>("guest");
+  const [deviceId, setDeviceId] = React.useState<string>("");
+
   const hospitalId = "your_hospital_id_here"; // Replace with actual hospital ID
+  const key = "testing"
+  const value = "test-val"
+  save(key, value)
+  getValueFor(key)
 
   useEffect(() => {
     // Set userName to "guest" by default or use authenticated user's name if available
-    // Replace the logic here if you have authentication to get the actual userName
     setUserName("guest");
 
     // Query to listen for new messages ordered by creation time
@@ -47,7 +65,7 @@ export default function Chat() {
         text: inputMessage.trim(),
         createdAt: Date.now(),
         senderName: userName, // Use userName for senderName
-        senderId: DeviceID, // Use DeviceID for senderId
+        senderId: deviceId, // Use deviceId for senderId
         receiverId: hospitalId, // Fixed receiver ID
       });
       setInputMessage(""); // Clear input field after sending message
