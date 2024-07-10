@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import { Stack } from "expo-router";
 
 export default function TabLayout() {
-  const CustomHeader = ({ title }) => {
+  const NavBar = ({ title }) => {
     return (
       <View style={styles.container}>
         <Image
@@ -20,13 +20,19 @@ export default function TabLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerTitle: (props) => <CustomHeader {...props} title="Undecided" />,
+          headerTitle: (props) => <NavBar {...props} title="Landing" />,
         }}
       />
       <Stack.Screen
         name="chat"
         options={{
-          headerTitle: (props) => <CustomHeader {...props} title="ChatScreen" />,
+          headerTitle: (props) => <NavBar {...props} title="ChatScreen" />,
+        }}
+      />
+      <Stack.Screen
+        name="patient"
+        options={{
+          headerTitle: (props) => <NavBar {...props} title="Patient" />,
         }}
       />
     </Stack>

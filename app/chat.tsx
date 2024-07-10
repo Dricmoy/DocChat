@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { Alert, StyleSheet, Text, View, TextInput, Pressable, FlatList } from "react-native";
-import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { StyleSheet, Text, View, TextInput, Pressable, FlatList, Platform } from "react-native";
+import { collection, addDoc, query, orderBy, where, onSnapshot } from 'firebase/firestore';
 import { db } from './firebaseconfig';
 import uuid from 'react-native-uuid';
 import * as SecureStore from 'expo-secure-store';
@@ -13,19 +13,6 @@ interface Message {
   senderId: string;
 }
 
-async function save(key: string, value: string) {
-  await SecureStore.setItemAsync(key, value);
-}
-
-async function getValueFor(key: string) {
-  let result = await SecureStore.getItemAsync(key);
-  if (result) {
-    alert("🔐 Here's your value 🔐 \n" + result);
-  } else {
-    alert('No values stored under that key.');
-  }
-}
-
 export default function Chat() {
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [inputMessage, setInputMessage] = React.useState<string>("");
@@ -33,48 +20,87 @@ export default function Chat() {
   const [deviceId, setDeviceId] = React.useState<string>("");
 
   const hospitalId = "your_hospital_id_here"; // Replace with actual hospital ID
-  const key = "testing"
-  const value = "test-val"
-  save(key, value)
-  getValueFor(key)
 
   useEffect(() => {
-    // Set userName to "guest" by default or use authenticated user's name if available
-    setUserName("guest");
+    const fetchDeviceId = async () => {
+      let savedDeviceId = await getDeviceId();
+      if (!savedDeviceId) {
+        savedDeviceId = uuid.v4().toString();
+        await saveDeviceId(savedDeviceId);
+      }
+      setDeviceId(savedDeviceId);
+    };
 
-    // Query to listen for new messages ordered by creation time
-    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const messagesData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        text: doc.data().text,
-        createdAt: doc.data().createdAt,
-        senderName: doc.data().senderName,
-        senderId: doc.data().senderId,
-      })) as Message[];
-      setMessages(messagesData);
-    });
+    const subscribeToMessages = (deviceId: string) => {
+      const q = query(
+        collection(db, "messages"),
+        orderBy("createdAt", "desc"),
+        where("senderId", "==", deviceId)
+      );
 
-    return () => unsubscribe();
-  }, []);
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const messagesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          text: doc.data().text,
+          createdAt: doc.data().createdAt,
+          senderName: doc.data().senderName,
+          senderId: doc.data().senderId,
+        })) as Message[];
+        setMessages(messagesData);
+      });
+
+      return unsubscribe;
+    };
+
+    const initializeChat = async () => {
+      await fetchDeviceId();
+      const unsubscribe = subscribeToMessages(deviceId);
+      return () => unsubscribe();
+    };
+
+    initializeChat();
+  }, [deviceId]);
 
   const sendMessage = async () => {
     if (inputMessage.trim() !== "") {
-      // Add new message to Firestore
       await addDoc(collection(db, "messages"), {
         text: inputMessage.trim(),
         createdAt: Date.now(),
-        senderName: userName, // Use userName for senderName
-        senderId: deviceId, // Use deviceId for senderId
-        receiverId: hospitalId, // Fixed receiver ID
+        senderName: userName,
+        senderId: deviceId,
+        receiverId: hospitalId,
       });
-      setInputMessage(""); // Clear input field after sending message
+      setInputMessage("");
+    }
+  };
+
+  const saveDeviceId = async (deviceId: string) => {
+    try {
+      if (Platform.OS === 'web') {
+        localStorage.setItem('deviceId', deviceId);
+      } else {
+        await SecureStore.setItemAsync('deviceId', deviceId);
+      }
+    } catch (error) {
+      console.error('Error saving device ID:', error);
+    }
+  };
+
+  const getDeviceId = async () => {
+    try {
+      if (Platform.OS === 'web') {
+        return localStorage.getItem('deviceId');
+      } else {
+        return await SecureStore.getItemAsync('deviceId');
+      }
+    } catch (error) {
+      console.error('Error retrieving device ID:', error);
+      return null;
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Render the list of messages */}
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
@@ -85,16 +111,15 @@ export default function Chat() {
           </View>
         )}
         contentContainerStyle={styles.messagesList}
-        inverted // Start from bottom
+        inverted
       />
-      {/* Input area for typing messages */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder="Type your message..."
           value={inputMessage}
           onChangeText={(text) => setInputMessage(text)}
-          onSubmitEditing={sendMessage} // Send message on submit
+          onSubmitEditing={sendMessage}
         />
         <Pressable style={styles.sendButton} onPress={sendMessage}>
           <Text style={styles.sendButtonText}>Send</Text>
@@ -104,7 +129,6 @@ export default function Chat() {
   );
 }
 
-// Styles for Chat component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -113,23 +137,23 @@ const styles = StyleSheet.create({
   },
   messagesList: {
     flexGrow: 1,
-    justifyContent: "flex-end", // Messages start from bottom
+    justifyContent: "flex-end",
   },
   messageContainer: {
-    backgroundColor: "#96b87f", // Soft green background for messages
+    backgroundColor: "#96b87f",
     padding: 10,
     borderRadius: 8,
     marginBottom: 8,
-    maxWidth: "70%", // Max width for message container
-    alignSelf: "flex-end", // Align messages to right
+    maxWidth: "70%",
+    alignSelf: "flex-end",
   },
   senderText: {
     fontSize: 12,
-    color: "#666", // Dark gray color for sender text
+    color: "#666",
   },
   messageText: {
     fontSize: 16,
-    color: "#333", // Dark color for message text
+    color: "#333",
   },
   inputContainer: {
     flexDirection: "row",
@@ -147,13 +171,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   sendButton: {
-    backgroundColor: "#96b87f", // Soft green color for send button
+    backgroundColor: "#96b87f",
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
   },
   sendButtonText: {
-    color: "#fff", // White color for send button text
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },

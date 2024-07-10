@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, Text, Button, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Link } from '@react-navigation/native';
 
 const HomeScreen = () => {
     const navigation = useNavigation();
@@ -13,14 +14,22 @@ const HomeScreen = () => {
                 style={styles.logo}
                 resizeMode="contain"
             />
-            <Text style={styles.title}>Welcome to DocChat</Text>
+            <Text style={styles.title}>Welcome to Unnamed</Text>
             <Text style={styles.subtitle}>Your platform for easy medical consultations.</Text>
             <Button
-                title="Chat with Doctor"
-                onPress={() => navigation.navigate('chat')}
-                color="#057AFF" // Adjust button color as needed
-            ></Button>
-            <Text style={styles.infoText}>Need help? Call 1-800-CHATAPP</Text>
+                title="Get started"
+                onPress={() => navigation.navigate('patient')}
+                color="#96b87f" 
+            />
+            <Text style={styles.infotext}>  
+                Hospital sign-in            
+                <Link 
+                    to="/signIn" 
+                    style={styles.link}>
+                    here
+                </Link>
+            </Text>
+
         </View>
     );
 };
@@ -49,11 +58,18 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         textAlign: 'center',
     },
-    infoText: {
-        marginTop: 30,
-        fontSize: 12,
-        color: '#666666',
+    infotext: {
+        fontSize: 11,
         textAlign: 'center',
+        marginTop: 20,
+    },
+    link: {
+        marginTop: 30,
+        marginLeft: 2,
+        fontSize: 12,
+        color: '#057AFF',
+        textAlign: 'center',
+        textDecorationLine: 'underline'
     },
 });
 
